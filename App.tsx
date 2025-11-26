@@ -83,7 +83,7 @@ function App() {
               <ShieldAlert className="w-6 h-6 text-white" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-xl font-bold text-slate-800 tracking-tight">PDF Redactor VN</h1>
+              <h1 className="text-xl font-bold text-slate-800 tracking-tight">PDF Reducktor </h1>
               {currentFile && (
                 <p className="text-xs text-slate-500 truncate max-w-md">{currentFile.name}</p>
               )}
