@@ -142,6 +142,15 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ file, redactions, setRedac
     });
   };
 
+  const clearPageRedactions = () => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa tất cả vùng che trên trang này?')) {
+      setRedactions(prev => ({
+        ...prev,
+        [currentPage - 1]: []
+      }));
+    }
+  };
+
   const currentPageRedactions = redactions[currentPage - 1] || [];
 
   return (
@@ -168,6 +177,16 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ file, redactions, setRedac
              Sau &gt;
           </button>
         </div>
+
+        <button
+          onClick={clearPageRedactions}
+          disabled={currentPageRedactions.length === 0}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Xóa tất cả vùng che trên trang này"
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Xóa các vùng che</span>
+        </button>
 
         {/* Zoom Controls */}
         <div className="flex items-center gap-3">
@@ -274,10 +293,10 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ file, redactions, setRedac
                 {/* Delete Button visible on hover */}
                 <button
                   onClick={(e) => removeRedaction(e, rect.id)}
-                  className="absolute -top-3 -right-3 bg-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500 transform scale-75 border border-slate-200"
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500 border border-slate-200 z-10"
                   title="Xóa vùng chọn"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-5 h-5" />
                 </button>
               </div>
             ))}
