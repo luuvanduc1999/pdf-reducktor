@@ -151,6 +151,13 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ file, redactions, setRedac
     }
   };
 
+  const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value >= 1 && numPages && value <= numPages) {
+      setCurrentPage(value);
+    }
+  };
+
   const currentPageRedactions = redactions[currentPage - 1] || [];
 
   return (
@@ -166,9 +173,20 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ file, redactions, setRedac
           >
             &lt; Trước
           </button>
-          <span className="text-sm font-medium text-slate-600">
-            Trang {currentPage} / {numPages || '--'}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-slate-600">Trang</span>
+            <input
+              type="number"
+              min={1}
+              max={numPages || 1}
+              value={currentPage}
+              onChange={handlePageInputChange}
+              className="w-16 px-2 py-1 text-center border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+            <span className="text-sm font-medium text-slate-600">
+              / {numPages || '--'}
+            </span>
+          </div>
           <button
             disabled={numPages === null || currentPage >= numPages}
             onClick={() => setCurrentPage(p => p + 1)}

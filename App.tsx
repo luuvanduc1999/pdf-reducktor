@@ -151,7 +151,7 @@ function App() {
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full py-3 text-lg"
               >
-                Chọn File PDF
+                Chọn một hoặc nhiều File PDF
               </Button>
               <p className="mt-4 text-xs text-slate-400">
                 Mọi xử lý được thực hiện trực tiếp trên trình duyệt của bạn. File không được gửi tới máy chủ nào.
