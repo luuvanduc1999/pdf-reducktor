@@ -24,27 +24,27 @@ export const saveRedactedPdf = async (
   const numPages = originalPdfDoc.getPageCount();
 
   for (let i = 0; i < numPages; i++) {
-    const pageRedactions = redactions[i];
+    const pageRedactions = redactions[i] || [];
 
-    if (pageRedactions && pageRedactions.length > 0) {
-      // === HAS REDACTIONS: FLATTEN PAGE ===
-      // This ensures security by converting the page to an image
-      // We render at 2x scale for better quality (high DPI)
-      
-      const page = await pdfJsDoc.getPage(i + 1); // PDF.js uses 1-based index
-      const viewport = page.getViewport({ scale: 2.0 }); 
-      
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d')!;
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      
-      await page.render({
-        canvasContext: context,
-        viewport: viewport
-      }).promise;
-      
-      // Draw redactions
+    // === ALWAYS FLATTEN PAGE ===
+    // This ensures consistency and security by converting all pages to images
+    // We render at 3x scale for high quality (approx 216 DPI)
+    
+    const page = await pdfJsDoc.getPage(i + 1); // PDF.js uses 1-based index
+    const viewport = page.getViewport({ scale: 3.0 }); 
+    
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d')!;
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    
+    await page.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+    
+    // Draw redactions if any
+    if (pageRedactions.length > 0) {
       pageRedactions.forEach(rect => {
         const rectX = rect.x * canvas.width;
         const rectY = rect.y * canvas.height;
@@ -54,33 +54,27 @@ export const saveRedactedPdf = async (
         context.fillStyle = '#000000';
         context.fillRect(rectX, rectY, rectWidth, rectHeight);
       });
-      
-      // Convert to JPEG with high quality
-      const imageDataUrl = canvas.toDataURL('image/jpeg', 0.90);
-      const imageBytes = Uint8Array.from(
-        atob(imageDataUrl.split(',')[1]),
-        c => c.charCodeAt(0)
-      );
-      
-      const image = await newPdfDoc.embedJpg(imageBytes);
-      
-      // Create page with original dimensions (viewport / 2)
-      const newPage = newPdfDoc.addPage([viewport.width / 2, viewport.height / 2]);
-      
-      // Draw the high-res image to fit the page
-      newPage.drawImage(image, {
-        x: 0,
-        y: 0,
-        width: newPage.getWidth(),
-        height: newPage.getHeight(),
-      });
-
-    } else {
-      // === NO REDACTIONS: COPY ORIGINAL ===
-      // This preserves text selection, links, and quality for unredacted pages
-      const [copiedPage] = await newPdfDoc.copyPages(originalPdfDoc, [i]);
-      newPdfDoc.addPage(copiedPage);
     }
+    
+    // Convert to JPEG with maximum quality
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+    const imageBytes = Uint8Array.from(
+      atob(imageDataUrl.split(',')[1]),
+      c => c.charCodeAt(0)
+    );
+    
+    const image = await newPdfDoc.embedJpg(imageBytes);
+    
+    // Create page with original dimensions (viewport / 3)
+    const newPage = newPdfDoc.addPage([viewport.width / 3, viewport.height / 3]);
+    
+    // Draw the high-res image to fit the page
+    newPage.drawImage(image, {
+      x: 0,
+      y: 0,
+      width: newPage.getWidth(),
+      height: newPage.getHeight(),
+    });
   }
   
   return await newPdfDoc.save();
