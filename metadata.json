@@ -1,0 +1,5 @@
+{
+  "name": "PDF Reducktor",
+  "description": "Ứng dụng web cho phép tải lên file PDF, bôi đen (redact) các phần văn bản nhạy cảm và lưu lại file đã chỉnh sửa.",
+  "requestFramePermissions": []
+}
